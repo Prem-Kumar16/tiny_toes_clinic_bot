@@ -1,0 +1,9 @@
+datefinder==0.7.3
+Flask==3.1.0
+langchain==0.3.15
+langchain_community==0.3.15
+pandas==2.2.3
+spacy==3.8.4
+streamlit==1.41.1
+torch==2.5.1
+transformers==4.48.0
