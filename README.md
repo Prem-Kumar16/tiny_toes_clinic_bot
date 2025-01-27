@@ -10,7 +10,7 @@ The framework used is **Retrieval-augmented generation (RAG)**
 2. Retains upto 5 chat history to provide relevant and concurrent responses.
 3. Intent and entity recognition for appointment booking.
 4. User friendly interface.
-5. Extremely lightweight mechanism with BERTScore F1 ~0.86
+5. Extremely lightweight mechanism with BERTScore F1 ~0.92
 
 ### How to run it on your own machine
 
