@@ -9,8 +9,9 @@ The framework used is **Retrieval-augmented generation (RAG)**
 1. Upto date medical data.
 2. Retains upto 5 chat history to provide relevant and concurrent responses.
 3. Intent and entity recognition for appointment booking.
-4. User friendly interface.
-5. Extremely lightweight mechanism with BERTScore F1 ~0.92
+4. Autofill the relevant details in appointment booking page using the entity recognized from user's chat.
+5. User friendly interface.
+6. Extremely lightweight mechanism with BERTScore F1 ~0.92
 
 ### How to run it on your own machine
 
