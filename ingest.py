@@ -8,8 +8,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
 
-DATA_PATH="/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/data"
-DB_FAISS_PATH="/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/vectorstore/db_faiss"
+DATA_PATH="./data"
+DB_FAISS_PATH="./vectorstore/db_faiss"
 
 def create_vector_db():
     loader = DirectoryLoader(DATA_PATH, glob='*.pdf', loader_cls=PyPDFLoader)
