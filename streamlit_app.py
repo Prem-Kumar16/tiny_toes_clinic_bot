@@ -14,8 +14,8 @@ import time
 import torch
 
 # Constants
-DB_FAISS_PATH = "/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/vectorstore/db_faiss"
-MODEL_PATH = "/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/model/gemma-2-2b-it-Q6_K.gguf"
+DB_FAISS_PATH = "./vectorstore/db_faiss"
+MODEL_PATH = "./model/gemma-2-2b-it-Q6_K.gguf"
 
 def format_history(messages):
     """Formats chat history into a string for the prompt"""
