@@ -1,4 +1,4 @@
-# 💬 Tiny Toes Clinical chatbot-cum-doctor appointment booking system
+# 👣👶🏻 Tiny Toes Clinical chatbot-cum-doctor appointment booking system
 
 A simple Streamlit web chatbot app created using Google Gemma 2 2B Open source SLM and a 4500 page medical encyclopaedia called "The-Gale-Encyclopedia-of-Medicine-3rd-Edition" and PubMed opensource medical database as data source.
 The framework used is **Retrieval-augmented generation (RAG)** 
