@@ -27,7 +27,7 @@ The framework used is **Retrieval-augmented generation (RAG)**
    $ wget https://staibabussalamsula.ac.id/wp-content/uploads/2024/06/The-Gale-Encyclopedia-of-Medicine-3rd-Edition-staibabussalamsula.ac_.id_.pdf
    ```
 
-3. Locally download the model. This is a gated model, so request permission for this model in https://huggingface.co/google/gemma-2-2b-it and follow the below steps to download the model locally
+3. Locally download the model (Used Llamacpp imatrix Quantizations of gemma-2-2b-it from bartowski - https://huggingface.co/bartowski/gemma-2-2b-it-GGUF The original model huggingface site is https://huggingface.co/google/gemma-2-2b-it). This is a gated model, so request permission for this model in https://huggingface.co/google/gemma-2-2b-it and follow the below steps to download the model locally.
 
    ```
    $ cd ..
