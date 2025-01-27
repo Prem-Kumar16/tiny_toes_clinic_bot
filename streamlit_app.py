@@ -6,20 +6,36 @@ from langchain_community.llms import LlamaCpp
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+from langchain.schema.runnable import RunnableParallel
+from operator import itemgetter
 import nlp
 import json
 import time
+import torch
 
 # Constants
 DB_FAISS_PATH = "/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/vectorstore/db_faiss"
 MODEL_PATH = "/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/model/gemma-2-2b-it-Q6_K.gguf"
 
+def format_history(messages):
+    """Formats chat history into a string for the prompt"""
+    history = []
+    for msg in messages:
+        if msg["role"] == "user":
+            history.append(f"User: {msg['content']}")
+        elif msg["role"] == "assistant":
+            history.append(f"Assistant: {msg['content']}")
+    return "\n".join(history)
+
 custom_prompt_template = """
 <|context|>
 You are an AI assistant that follows instruction extremely well.
 Please be truthful and give direct answers.
+Previous conversation:
+{history}
+
+Relevant Context:
+{context}
 </s>
 <|user|>
 {query}
@@ -64,6 +80,7 @@ def load_llm_model():
         model_path=MODEL_PATH,
         temperature=0.3,
         max_tokens=2048,
+        n_ctx=2048,
         top_p=1
     )
 
@@ -71,7 +88,11 @@ def create_rag_chain(vectorstore, llm):
     retriever = vectorstore.as_retriever(search_kwargs={'k': 5})
     prompt = ChatPromptTemplate.from_template(custom_prompt_template)
     return (
-        {"context": retriever, "query": RunnablePassthrough()}
+        RunnableParallel({
+            "context": itemgetter("query") | retriever,
+            "query": itemgetter("query"),
+            "history": itemgetter("history")
+        })
         | prompt
         | llm
         | StrOutputParser()
@@ -255,6 +276,95 @@ def book_mode():
         st.session_state.patient_name = ''
         st.session_state.mobile_number = ''
         st.rerun()
+    st.session_state.need_to_book = False
+
+def get_available_doctors(selected_day):
+    """Retrieve doctors available on a specific day."""
+    conn = sqlite3.connect("doctor_appointments.db")
+    cursor = conn.cursor()
+
+    # Get all doctors and their available time slots for the selected day
+    cursor.execute('''
+        SELECT d.name, a.time_slot
+        FROM doctors d
+        JOIN availability a ON d.id = a.doctor_id
+        WHERE a.date = ? AND a.booked = 0
+    ''', (selected_day,))
+    available_doctors = cursor.fetchall()
+    conn.close()
+
+    # Organize the data into a dictionary: {doctor: [time_slots]}
+    doctor_schedule = {}
+    for doctor, time_slot in available_doctors:
+        if doctor not in doctor_schedule:
+            doctor_schedule[doctor] = []
+        doctor_schedule[doctor].append(time_slot)
+    
+    return doctor_schedule
+
+# Modify the sidebar to display a dropdown for selecting the day
+def display_day_selector():
+    st.sidebar.title("Check Doctor Availability")
+    
+    # Get unique available dates from the database
+    conn = sqlite3.connect("doctor_appointments.db")
+    cursor = conn.cursor()
+    cursor.execute('SELECT DISTINCT date FROM availability WHERE booked = 0')
+    available_dates = [row[0] for row in cursor.fetchall()]
+    conn.close()
+
+    # Dropdown to select a day
+    selected_day = st.sidebar.selectbox("Select Day", available_dates)
+
+    # Display available doctors and their time slots for the selected day
+    if selected_day:
+        st.sidebar.markdown(f"**Available Doctors on {selected_day}:**")
+        doctor_schedule = get_available_doctors(selected_day)
+        if doctor_schedule:
+            for doctor, time_slots in doctor_schedule.items():
+                st.sidebar.markdown(f"**Doctor:** {doctor}")
+                st.sidebar.markdown(f"**Time Slots:** {', '.join(time_slots)}")
+                st.sidebar.markdown("---")
+        else:
+            st.sidebar.markdown("No doctors available on this day.")
+
+# Add a function to get doctor schedules
+def get_doctor_schedule(doctor_name):
+    """Retrieve the schedule of a specific doctor."""
+    conn = sqlite3.connect("doctor_appointments.db")
+    cursor = conn.cursor()
+
+    # Get doctor ID based on the name
+    cursor.execute('SELECT id FROM doctors WHERE name = ?', (doctor_name,))
+    doctor_id = cursor.fetchone()
+
+    if doctor_id:
+        doctor_id = doctor_id[0]
+        # Get all available time slots for the doctor
+        cursor.execute('''
+            SELECT date, time_slot FROM availability
+            WHERE doctor_id = ? AND booked = 0
+        ''', (doctor_id,))
+        schedule = cursor.fetchall()
+        conn.close()
+        return schedule
+
+    conn.close()
+    return []
+
+# Modify the sidebar to display doctor schedules
+def display_doctor_schedules():
+    st.sidebar.title("Doctor Schedules")
+    doctors = get_doctors()
+    for doctor in doctors:
+        st.sidebar.markdown(f"**Doctor:** {doctor}")
+        schedule = get_doctor_schedule(doctor)
+        if schedule:
+            for date, time_slot in schedule:
+                st.sidebar.markdown(f"- **Date:** {date}, **Time:** {time_slot}")
+        else:
+            st.sidebar.markdown("No available slots.")
+        st.sidebar.markdown("---")
 
 
 def main():
@@ -271,24 +381,21 @@ def main():
 
     # Sidebar
     with st.sidebar:
-        
         st.title("Tiny Toes Medical Chatbot 🚀🤖")
-        #st.markdown("""## About
-        #This chatbot uses an optimized model and a FAISS vector store for medical knowledge.""")
-        #st.markdown("### 🔄Bot evolving, stay tuned!")
-        #mode = st.radio("Select Mode", ["Chat", "Book Appointment"])
         st.markdown("Welcome to our AI-powered healthcare chatbot!")
-        #st.image("path_to_logo.png", width=200)  # Add your logo here
         st.markdown("### Quick Links")
         st.markdown("- [FAQ](#)")
         st.markdown("- [Contact Support](#)")
-        
-        mode = st.radio(
+
+        st.session_state.mode = st.radio(
             "Select Mode",
             ["Chat", "Book Appointment"],
             index=0 if st.session_state.mode == "Chat" else 1,
             key="mode_radio",
         )
+        
+        # Display day selector and doctor availability
+        display_day_selector()
 
     if st.session_state.mode == "Chat":
         st.title("Tiny Toes Clinic 👣👶🏻")
@@ -339,7 +446,6 @@ def main():
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
-
 
         # Create a chat input field
         if prompt := st.chat_input("Ask your question here:"):
@@ -409,15 +515,25 @@ def main():
                     st.session_state.messages.append({"role": "assistant", "content": f"Intent detected: {intent}. However, it's not related to booking appointments."})
             else:
 
-                # Generate a response using the RAG chain
-                with st.spinner("Processing your question..."):
-                    try:
-                        response = rag_chain.invoke(prompt)
-                        st.session_state.messages.append({"role": "assistant", "content": response})
-                        with st.chat_message("assistant"):
-                            st.markdown(response)
-                    except Exception as e:
-                        st.error(f"Error: {str(e)}")
+                #if not st.session_state.get('need_to_book', False):
+                if st.session_state.need_to_book == False:
+
+                    history_messages = st.session_state.messages[:-1]
+                    history_str = format_history(history_messages)
+                    
+                    # Prepare input with history
+                    input_dict = {
+                        "query": prompt,
+                        "history": history_str
+                    }
+
+                    # Generate response
+                    with st.spinner("Processing your question..."):
+                        try:
+                            response = rag_chain.invoke(input_dict)
+                            display_messages(response)
+                        except Exception as e:
+                            st.error(f"Error: {str(e)}")
 
         #if st.session_state.need_to_book:
         #   book_mode()
