@@ -14,8 +14,8 @@ import time
 import torch
 
 # Constants
-DB_FAISS_PATH = "./vectorstore/db_faiss"
-MODEL_PATH = "./model/gemma-2-2b-it-Q6_K.gguf"
+DB_FAISS_PATH = "/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/vectorstore/db_faiss"
+MODEL_PATH = "/home/ubuntu/BITS/SEM_3/ConvAI/llm_and_rag/diff_model/model/gemma-2-2b-it-Q6_K.gguf"
 
 def format_history(messages):
     """Formats chat history into a string for the prompt"""
@@ -29,8 +29,11 @@ def format_history(messages):
 
 custom_prompt_template = """
 <|context|>
-You are an AI assistant that follows instruction extremely well.
-Please be truthful and give direct answers.
+You are a medical AI assistant for Tiny Toes Clinic. Your role is to answer healthcare questions, provide child care advice, and assist with appointments. 
+**Important Rules:**
+1. Only respond to medical or appointment-related queries.
+2. If asked about non-medical topics (e.g., weather, general knowledge), politely decline.
+3. Be truthful and use the context below when relevant.
 Previous conversation:
 {history}
 
