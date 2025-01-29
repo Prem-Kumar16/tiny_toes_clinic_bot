@@ -12,7 +12,7 @@ The framework used is **Retrieval-augmented generation (RAG)**
 6. Extremely lightweight mechanism.
 
    
-![Screenshot (83)](https://github.com/user-attachments/assets/60213e90-c8f9-4bb5-8fc2-d85ef3c96a63)
+![Screenshot (83) 1](https://github.com/user-attachments/assets/acaf6724-159a-4274-a35c-007780ed6c90)
 
 
 ### How to run it on your own machine
@@ -62,7 +62,7 @@ The framework used is **Retrieval-augmented generation (RAG)**
    ```
    
 
-![Screenshot (84)](https://github.com/user-attachments/assets/31fff359-f874-4299-8acf-d6b201d95f2b)
+![Screenshot (84) 1](https://github.com/user-attachments/assets/439b8e73-ca72-4093-b4ee-01daab96f381)
 
 
 ### Demo working video
