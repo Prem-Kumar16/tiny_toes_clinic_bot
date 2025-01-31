@@ -61,15 +61,13 @@ The framework used is **Retrieval-augmented generation (RAG)**
    $ streamlit run streamlit_app.py
    ```
 
-
-![Screenshot (86)](https://github.com/user-attachments/assets/94ab325c-cd06-438c-8bfe-ca1322638cde)
+![Screenshot (86) 1](https://github.com/user-attachments/assets/630823c6-bff4-479a-9ec2-589bfd2171f2)
 
 
 ![Screenshot (84) 1](https://github.com/user-attachments/assets/439b8e73-ca72-4093-b4ee-01daab96f381)
 
 
-![Screenshot (87)](https://github.com/user-attachments/assets/1e7c28ba-933d-43fc-a725-b22514e4668b)
-
+![Screenshot (87) 1](https://github.com/user-attachments/assets/8fed02db-fff5-4e86-aa0e-1ef42aa4417a)
 
 
 ### Demo working video
